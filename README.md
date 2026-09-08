@@ -59,6 +59,20 @@ and confidence, stores the proposal with model + prompt hash + inputs hash, and 
 to `triaged`. It cannot go further; a human resolves. `npm run eval` scores a model against the
 fixture set: category accuracy, priority accuracy, escalation precision/recall.
 
+## Eval numbers
+
+`npm run eval` on the 10-ticket fixture set (`test/fixtures/tickets.json`), 2026-09-08:
+
+| model | category acc | priority acc | escalation precision | escalation recall | invalid |
+|---|---|---|---|---|---|
+| stub/keywords (offline) | 1.00 | 0.90 | 0.83 | 1.00 | 0 |
+| anthropic/claude-sonnet-5 via OpenRouter | 0.90 | 0.60 | 0.71 | 1.00 | 0 |
+
+The stub is tuned to the fixtures, so its numbers are an upper bound on the harness, not a
+model result. The real model over-escalates (recall 1.0, precision 0.71): it calls p2 where the
+human said p3. That is the right failure direction for a support desk and the first thing the
+prompt work in phase 2 will tune, against a larger fixture set.
+
 ## The rules the code keeps
 
 1. AI proposes, a human disposes. Agents never resolve or close.
