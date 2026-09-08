@@ -130,3 +130,20 @@ end $$;
 alter table tenants enable row level security;
 alter table tenants force row level security;
 create policy tenant_self on tenants using (id = current_setting('app.tenant_id', true)::uuid);
+
+-- API keys for HTTP intake (hash only; the key itself is shown once at creation).
+create table api_keys (
+  id uuid primary key default gen_random_uuid(),
+  tenant_id uuid not null references tenants(id),
+  label text not null,
+  key_hash text not null unique,
+  created_at timestamptz not null default now(),
+  revoked_at timestamptz
+);
+grant select, insert, update on api_keys to kennel_app;
+-- api_keys is looked up BEFORE the tenant is known, so it is intentionally not under RLS;
+-- the lookup returns the tenant_id that the request then scopes to.
+
+-- Intake dedupe: one external message = one ticket.
+alter table tickets add column external_id text;
+create unique index tickets_dedupe on tickets (tenant_id, source, external_id) where external_id is not null;

@@ -1,0 +1,18 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: kennel
+      POSTGRES_PASSWORD: kennel
+      POSTGRES_DB: kennel
+    ports:
+      - "127.0.0.1:5433:5432"
+    volumes:
+      - kennel-pg:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U kennel"]
+      interval: 3s
+      timeout: 3s
+      retries: 20
+volumes:
+  kennel-pg:

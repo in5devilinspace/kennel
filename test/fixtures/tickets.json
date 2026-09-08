@@ -1,0 +1,12 @@
+[
+  {"id":"f01","source":"discord","title":"Voice room returns 502 for everyone","body":"Since 10 minutes all users get a 502 from the voice room. Production is down.","human":{"category":"infra","priority":"p1"}},
+  {"id":"f02","source":"email","title":"Stripe charged twice","body":"My card shows two charges for the same invoice. Please refund one.","human":{"category":"billing","priority":"p2"}},
+  {"id":"f03","source":"http","title":"SSO login loops back to the login page","body":"After SAML login with Okta I land on the login page again. 403 in the console.","human":{"category":"access","priority":"p2"}},
+  {"id":"f04","source":"discord","title":"Agent keeps calling the same tool in a loop","body":"The research agent did the same tool call 40 times and burned budget. Wrong answer at the end.","human":{"category":"agent-behavior","priority":"p2"}},
+  {"id":"f05","source":"email","title":"Webhook from n8n not arriving","body":"The integration webhook stopped delivering after I rotated the API key.","human":{"category":"integration","priority":"p3"}},
+  {"id":"f06","source":"http","title":"Typo on the settings page","body":"Minor cosmetic issue: 'Setings' in the header.","human":{"category":"question","priority":"p4"}},
+  {"id":"f07","source":"discord","title":"Could you add dark mode?","body":"It would be nice to have a dark theme for the console.","human":{"category":"feature","priority":"p4"}},
+  {"id":"f08","source":"email","title":"How do I export tickets?","body":"Is there a way to export my tickets to CSV?","human":{"category":"question","priority":"p3"}},
+  {"id":"f09","source":"http","title":"Disk full on worker node","body":"Worker crashed, disk at 100%, jobs are slow and intermittent.","human":{"category":"infra","priority":"p2"}},
+  {"id":"f10","source":"discord","title":"Password reset email never arrives","body":"I requested a password reset three times, nothing in inbox or spam. I cannot access my account.","human":{"category":"access","priority":"p3"}}
+]

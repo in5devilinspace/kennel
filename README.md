@@ -15,7 +15,8 @@ Bloodhound (an approval-gated job-application control plane).
 
 ## Status
 
-Phase 1 of 6: architecture contract, schema, domain model with tests, API skeleton, CI.
+Phase 2 of 6 in progress: Postgres with row-level security live, HTTP + Discord + email intake,
+AI triage with provenance, an offline eval harness. CI runs the RLS tests against a real Postgres.
 See `docs/architecture.md` for the six invariants and `docs/adr/` for decisions.
 Roadmap: Linear project *The-Kennel*.
 
@@ -31,14 +32,32 @@ Roadmap: Linear project *The-Kennel*.
 ## Run it
 
 ```sh
-node --version        # 24 or newer, TypeScript runs natively
-npm test              # node --test test/*.test.ts
-npm run typecheck     # tsc --noEmit
-node src/api/server.ts   # :8080 → /healthz /readyz /metrics
+node --version                 # 24 or newer, TypeScript runs natively
+npm run db:up                  # Postgres 16 on 127.0.0.1:5433 (docker compose)
+cp .env.example .env           # then export DATABASE_URL=postgres://kennel:kennel@127.0.0.1:5433/kennel
+npm run migrate                # applies db/migrations/*.sql
+npm run seed -- onyx "Onyx"    # prints a tenant id and an API key, once
+npm test                       # 27 tests; RLS tests run when DATABASE_URL is set
+npm run eval                   # triage eval over test/fixtures/tickets.json (stub or OpenRouter)
+npm start                      # API on :8080
+npm run worker                 # maildir poll + triage loop
 ```
 
-Postgres: `psql -f db/schema.sql` creates the tables, the `kennel_app` role and the RLS
-policies. The app sets `app.tenant_id` per transaction; without it every query sees nothing.
+File a ticket:
+
+```sh
+curl -s -X POST localhost:8080/v1/tickets -H "authorization: Bearer kn_…" \
+  -H "content-type: application/json" -d '{"title":"Voice room 502","body":"all users, production","priority":"p1"}'
+```
+
+Intake paths: `POST /v1/tickets` (API key), `POST /discord/interactions` (Discord app with the
+`/ticket` slash command; requests are Ed25519-verified), and a maildir drop (`KENNEL_MAILDIR`,
+any MTA that writes raw `.eml` into `new/`). Every path dedupes on the external id.
+
+Triage: the worker asks the model (OpenRouter, fallback list) for a category, priority, runbook
+and confidence, stores the proposal with model + prompt hash + inputs hash, and moves the ticket
+to `triaged`. It cannot go further; a human resolves. `npm run eval` scores a model against the
+fixture set: category accuracy, priority accuracy, escalation precision/recall.
 
 ## The rules the code keeps
 
